@@ -1,0 +1,12 @@
+[package]
+name = "screen_props"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.28.1"
+egui = "0.34.2"
+egui-file-dialog = "0.6.0"
+egui_extras = { version = "0.28.1", features = ["all_loaders"] }
+rust-i18n = "4.0.0"
+semver = "1.0.28"

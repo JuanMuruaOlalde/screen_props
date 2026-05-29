@@ -5,7 +5,10 @@ i18n!("locales", fallback = "en");
 
 use eframe::egui;
 
+mod prop_show_message;
 mod utils;
+
+use prop_show_message::PropShowMessage;
 
 fn main() -> eframe::Result<()> {
     let options_for_eframe = eframe::NativeOptions {
@@ -14,7 +17,11 @@ fn main() -> eframe::Result<()> {
             .with_icon(egui::IconData::default()),
         ..eframe::NativeOptions::default()
     };
-    let title = format!("{} {}", String::from("screen props"), utils::get_version_text());
+    let title = format!(
+        "{} {}",
+        String::from("screen props"),
+        utils::get_version_text()
+    );
     eframe::run_native(
         &title,
         options_for_eframe,
@@ -25,27 +32,21 @@ fn main() -> eframe::Result<()> {
     )
 }
 
-struct ScreenPropsApp {
-
-}
+struct ScreenPropsApp {}
 
 impl Default for ScreenPropsApp {
     fn default() -> Self {
-        Self {
-
-        }
+        Self {}
     }
 }
 
 impl ScreenPropsApp {
-        pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
 
         Default::default()
     }
-
-    
 }
 
 impl eframe::App for ScreenPropsApp {
@@ -53,8 +54,13 @@ impl eframe::App for ScreenPropsApp {
         ctx.set_pixels_per_point(1.5);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Hello, world.");
+            //if ctx.input().key_pressed(egui::Key::F1) {
+            let message = PropShowMessage {
+                message_text: String::from("Hello, world."),
+                button_text: String::from(""),
+            };
+            message.show(ui);
+            //}
         });
     }
-
 }

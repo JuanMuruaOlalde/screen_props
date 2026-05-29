@@ -23,4 +23,3 @@ pub fn get_version_text() -> String {
         Err(_error) => String::from("(..)"),
     }
 }
-

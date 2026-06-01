@@ -6,7 +6,18 @@
 
 ==============================================================
 
+                egui::CentralPanel::default().show(ctx, |ui| {
+                    match self.viewport_status {
+                        invisible => {
+                            || ctx.input(|i| i.viewport().close_requested());
+                        },
+                        visible => {
+                            self.viewport_status = message.show(ui);
+                        }
+                    }
+                });
 
 
+==============================================================
 ==============================================================
 

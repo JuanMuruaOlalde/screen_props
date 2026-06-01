@@ -3,12 +3,12 @@
 extern crate rust_i18n;
 i18n!("locales", fallback = "en");
 
-use eframe::egui;
+use eframe::egui::{self, ViewportClass};
 
-mod prop_show_message;
+mod message_prop;
 mod utils;
 
-use prop_show_message::PropShowMessage;
+use message_prop::MessageProp;
 
 fn main() -> eframe::Result<()> {
     let options_for_eframe = eframe::NativeOptions {
@@ -32,12 +32,8 @@ fn main() -> eframe::Result<()> {
     )
 }
 
-struct ScreenPropsApp {}
-
-impl Default for ScreenPropsApp {
-    fn default() -> Self {
-        Self {}
-    }
+struct ScreenPropsApp {
+    message: MessageProp,
 }
 
 impl ScreenPropsApp {
@@ -45,7 +41,16 @@ impl ScreenPropsApp {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
 
-        Default::default()
+        Self {
+            message: MessageProp {
+                title: String::from("Message Prop"),
+                main_text: String::from("Hello, world."),
+                button_text: String::from("Close"),
+                size_width: 200.0,
+                size_height: 400.0,
+                show_prop: false,
+            },
+        }
     }
 }
 
@@ -54,13 +59,25 @@ impl eframe::App for ScreenPropsApp {
         ctx.set_pixels_per_point(1.5);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            //if ctx.input().key_pressed(egui::Key::F1) {
-            let message = PropShowMessage {
-                message_text: String::from("Hello, world."),
-                button_text: String::from(""),
+            let input = ctx.input(|input| input.clone());
+            if input.key_pressed(egui::Key::F1) {
+                self.message.show_prop = true;
             };
-            message.show(ui);
-            //}
+            self.message.update(ctx);
+            if ui.button("Quit").clicked() {
+                std::process::exit(0);
+            };
+            ui.add_space(15.0);
+            ui.label("Message title: ");
+            ui.text_edit_singleline(&mut self.message.title);
+            ui.label("Message text: ");
+            ui.text_edit_multiline(&mut self.message.main_text);
+            ui.label("Message button text: ");
+            ui.text_edit_singleline(&mut self.message.button_text);
+            ui.label("Message window size: ");
+            ui.add(egui::Slider::new(&mut self.message.size_width, 100.0..=600.0).text("width"));
+            ui.add(egui::Slider::new(&mut self.message.size_height, 100.0..=600.0).text("height"));
+            ui.add_space(15.0);
         });
     }
 }

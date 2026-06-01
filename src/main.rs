@@ -43,11 +43,11 @@ impl ScreenPropsApp {
 
         Self {
             message: MessageProp {
-                title: String::from("Message Prop"),
-                main_text: String::from("Hello, world."),
+                title: String::from("This is a message Prop"),
+                main_text: String::from("Hello, world.\n\nAnd some more text..."),
                 button_text: String::from("Close"),
-                size_width: 200.0,
-                size_height: 400.0,
+                size_width: 175.0,
+                size_height: 120.0,
                 show_prop: false,
             },
         }
@@ -64,9 +64,12 @@ impl eframe::App for ScreenPropsApp {
                 self.message.show_prop = true;
             };
             self.message.update(ctx);
+            ui.label("- press F1 to show the message prop.");
             if ui.button("Quit").clicked() {
                 std::process::exit(0);
             };
+            ui.add_space(15.0);
+            ui.separator();
             ui.add_space(15.0);
             ui.label("Message title: ");
             ui.text_edit_singleline(&mut self.message.title);

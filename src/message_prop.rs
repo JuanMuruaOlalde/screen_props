@@ -21,9 +21,11 @@ impl MessageProp {
                     ui.add_space(10.0);
                     ui.label(&self.main_text);
                     ui.add_space(25.0);
-                    if ui.button(&self.button_text).clicked() {
-                        self.show_prop = false;
-                    };
+                    ui.vertical_centered(|ui| {
+                        if ui.button(&self.button_text).clicked() {
+                            self.show_prop = false;
+                        };
+                    });
                 });
             };
             ctx.show_viewport_immediate(viewport_id, viewport_builder, viewport_ui);

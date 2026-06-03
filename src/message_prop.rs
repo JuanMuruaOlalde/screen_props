@@ -18,6 +18,9 @@ impl MessageProp {
                 .with_title(&self.title);
             let viewport_ui = |ctx: &eframe::egui::Context, _: ViewportClass| {
                 egui::CentralPanel::default().show(ctx, |ui| {
+                    if ui.input(|i| i.viewport().close_requested()) {
+                        self.show_prop = false;
+                    }
                     ui.add_space(10.0);
                     ui.label(&self.main_text);
                     ui.add_space(25.0);

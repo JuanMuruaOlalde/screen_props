@@ -3,12 +3,17 @@
 extern crate rust_i18n;
 i18n!("locales", fallback = "en");
 
-use eframe::egui::{self, ViewportClass};
+use chrono::{Datelike, NaiveDateTime, Timelike};
+use eframe::egui::{self};
+use std::{fmt, path::PathBuf};
 
 mod message_prop;
+mod scrolling_log_prop;
 mod utils;
 
 use message_prop::MessageProp;
+
+use crate::scrolling_log_prop::ScrollingLogProp;
 
 fn main() -> eframe::Result<()> {
     let options_for_eframe = eframe::NativeOptions {
@@ -34,6 +39,7 @@ fn main() -> eframe::Result<()> {
 
 struct ScreenPropsApp {
     message: MessageProp,
+    log: ScrollingLogProp,
 }
 
 impl ScreenPropsApp {
@@ -50,6 +56,14 @@ impl ScreenPropsApp {
                 size_height: 120.0,
                 show_prop: false,
             },
+            log: ScrollingLogProp {
+                lines_file_path: PathBuf::from("./scrolling_log_text_lines.txt"),
+                last_timestamp: chrono::Local::now().naive_local(),
+                lines: Vec::new(),
+                size_width: 800.0,
+                size_height: 400.0,
+                show_prop: false,
+            },
         }
     }
 }
@@ -63,8 +77,13 @@ impl eframe::App for ScreenPropsApp {
             if input.key_pressed(egui::Key::F1) {
                 self.message.show_prop = true;
             };
+            if input.key_pressed(egui::Key::F2) {
+                self.log.show_prop = true;
+            };
             self.message.update(ctx);
+            self.log.update(ctx);
             ui.label("- press F1 to show the message prop.");
+            ui.label("- press F2 to show the scrolling log prop.");
             if ui.button("Quit").clicked() {
                 std::process::exit(0);
             };
@@ -81,6 +100,73 @@ impl eframe::App for ScreenPropsApp {
             ui.add(egui::Slider::new(&mut self.message.size_width, 100.0..=600.0).text("width"));
             ui.add(egui::Slider::new(&mut self.message.size_height, 100.0..=600.0).text("height"));
             ui.add_space(15.0);
+            ui.separator();
+            ui.add_space(15.0);
+            ui.label("Source file for log text lines: ");
+            let mut text_filepath = self.log.lines_file_path.to_string_lossy().to_string();
+            ui.text_edit_singleline(&mut text_filepath);
+            self.log.lines_file_path = PathBuf::from(text_filepath);
+            ui.label("Start date&time for timestamps:");
+            let mut text_datetime: TextDateTime = TextDateTime::from(&self.log.last_timestamp);
+            ui.horizontal(|ui| {
+                ui.label("Year: ");
+                ui.add(egui::DragValue::new(&mut text_datetime.year).speed(1));
+                ui.label("  Month: ");
+                ui.add(egui::DragValue::new(&mut text_datetime.month).range(1..=12));
+                ui.label("  Day: ");
+                ui.add(egui::DragValue::new(&mut text_datetime.day).range(1..=31));
+                ui.label("  Hour: ");
+                ui.add(egui::DragValue::new(&mut text_datetime.hour).range(1..=24));
+                ui.label("  Minute: ");
+                ui.add(egui::DragValue::new(&mut text_datetime.minute).range(1..=60));
+                ui.label("  Second: ");
+                ui.add(egui::DragValue::new(&mut text_datetime.second).range(1..=60));
+            });
+            match NaiveDateTime::parse_from_str(
+                format!("{}", text_datetime).as_str(),
+                "%Y/%m/%d %H:%M:%S",
+            ) {
+                Ok(datetime) => self.log.last_timestamp = datetime,
+                Err(_) => (),
+            }
+            ui.label("Scrolling log window size: ");
+            ui.add(egui::Slider::new(&mut self.log.size_width, 100.0..=1024.0).text("width"));
+            ui.add(egui::Slider::new(&mut self.log.size_height, 100.0..=1024.0).text("height"));
+            ui.add_space(15.0);
+            ui.separator();
+            ui.add_space(15.0);
         });
+    }
+}
+
+pub struct TextDateTime {
+    year: i32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    minute: u32,
+    second: u32,
+}
+
+impl From<&NaiveDateTime> for TextDateTime {
+    fn from(datetime: &NaiveDateTime) -> Self {
+        Self {
+            year: datetime.year(),
+            month: datetime.month(),
+            day: datetime.day(),
+            hour: datetime.hour(),
+            minute: datetime.minute(),
+            second: datetime.second(),
+        }
+    }
+}
+
+impl fmt::Display for TextDateTime {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}/{}/{} {}:{}:{}",
+            self.year, self.month, self.day, self.hour, self.minute, self.second
+        )
     }
 }

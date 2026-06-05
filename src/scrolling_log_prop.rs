@@ -51,7 +51,8 @@ impl ScrollingLogProp {
     }
 
     pub fn reset_displayed_lines(&mut self) {
-        self.displayed_lines = Vec::new();
+        self.displayed_lines.clear();
+        self.last_line_index = 0;
     }
 
     fn random_duration(&mut self) -> Duration {

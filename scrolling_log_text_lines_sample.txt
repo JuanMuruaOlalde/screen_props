@@ -1,0 +1,10 @@
+-Info- Some text to display.
+-Info- One line at time.
+-Warning- This is to show someting problematic, but not severe. Warning lines will be displayed in dark_red.
+-Info- More boring stuff.
+-Info- Another informative message.
+-Info- And one more.
+-ERROR- This is to show something problematic. Error lines will be displayed in RED.
+-Info- Back to the usual informative stuff.
+-Info- Informative lines are the most common ones in logs.
+-Info- As they inform about plain processes that goes as intended.

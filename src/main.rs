@@ -56,14 +56,14 @@ impl ScreenPropsApp {
                 size_height: 120.0,
                 show_prop: false,
             },
-            log: ScrollingLogProp {
-                lines_file_path: PathBuf::from("./scrolling_log_text_lines.txt"),
-                last_timestamp: chrono::Local::now().naive_local(),
-                lines: Vec::new(),
-                size_width: 800.0,
-                size_height: 400.0,
-                show_prop: false,
-            },
+            log: ScrollingLogProp::new(
+                PathBuf::from("./scrolling_log_text_lines_sample.txt"),
+                chrono::Local::now().naive_local(),
+                1,
+                5,
+                800.0,
+                400.0,
+            ),
         }
     }
 }
@@ -73,20 +73,25 @@ impl eframe::App for ScreenPropsApp {
         ctx.set_pixels_per_point(1.5);
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            ui.label("Please, stay focused in this window in order to allow keypress events.");
+            ui.label("- press F1 to show the MESSAGE prop ; and F2 to hide it.");
             let input = ctx.input(|input| input.clone());
             if input.key_pressed(egui::Key::F1) {
                 self.message.show_prop = true;
-            };
+            }
             if input.key_pressed(egui::Key::F2) {
+                self.message.show_prop = false;
+            }
+            self.message.update(ctx);
+            ui.label("- press F3 to show the SCROLLING LOG prop ; and F4 to hide it.");
+            if input.key_pressed(egui::Key::F3) {
+                self.log.reset_displayed_lines();
                 self.log.show_prop = true;
             };
-            self.message.update(ctx);
-            self.log.update(ctx);
-            ui.label("- press F1 to show the message prop.");
-            ui.label("- press F2 to show the scrolling log prop.");
-            if ui.button("Quit").clicked() {
-                std::process::exit(0);
+            if input.key_pressed(egui::Key::F4) {
+                self.log.show_prop = false;
             };
+            self.log.update(ctx);
             ui.add_space(15.0);
             ui.separator();
             ui.add_space(15.0);
@@ -129,6 +134,13 @@ impl eframe::App for ScreenPropsApp {
                 Ok(datetime) => self.log.last_timestamp = datetime,
                 Err(_) => (),
             }
+            ui.horizontal(|ui| {
+                ui.label("Random delay between lines:  from ");
+                ui.add(egui::DragValue::new(&mut self.log.delay_seconds_from).range(1..=3600));
+                ui.label(" to ");
+                ui.add(egui::DragValue::new(&mut self.log.delay_seconds_to).range(1..=3600));
+                ui.label(" seconds")
+            });
             ui.label("Scrolling log window size: ");
             ui.add(egui::Slider::new(&mut self.log.size_width, 100.0..=1024.0).text("width"));
             ui.add(egui::Slider::new(&mut self.log.size_height, 100.0..=1024.0).text("height"));

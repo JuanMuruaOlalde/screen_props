@@ -1,2 +1,0 @@
-Some text to display.
-One line at time.
